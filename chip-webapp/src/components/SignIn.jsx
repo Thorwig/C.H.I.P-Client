@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box, Snackbar, Alert } from '@mui/material';
-import app from '../firebase/config';
+import { signIn } from '../firebase/auth';
 
 function SignIn() {
   const [email, setEmail] = useState('');
@@ -11,7 +10,6 @@ function SignIn() {
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('info');
   const navigate = useNavigate();
-  const auth = getAuth(app);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -23,11 +21,11 @@ function SignIn() {
   const handleSignIn = async (event) => {
     event.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signIn(email, password);
       setMessage('Sign in successful!');
       setSeverity('success');
       setOpen(true);
-      navigate('/dashboard'); // Optionally navigate after successful sign in
+      navigate('/dashboard'); 
     } catch (error) {
       setMessage(error.message);
       setSeverity('error');

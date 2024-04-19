@@ -13,7 +13,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// Only call getAnalytics if analytics is available in your project
 if (firebaseConfig.measurementId) {
   const analytics = getAnalytics(app);
 }

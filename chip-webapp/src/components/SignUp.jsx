@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box, Snackbar, Alert } from '@mui/material';
-import app from '../firebase/config';
+import { signUp } from '../firebase/auth';
 
 function SignUp() {
   const [email, setEmail] = useState('');
@@ -11,7 +10,6 @@ function SignUp() {
   const [open, setOpen] = useState(false);
   const [severity, setSeverity] = useState('info');
   const navigate = useNavigate();
-  const auth = getAuth(app);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -23,7 +21,7 @@ function SignUp() {
   const handleSignUp = async (event) => {
     event.preventDefault();
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await signUp(email, password);
       setMessage('User successfully created!');
       setSeverity('success');
       setOpen(true);
