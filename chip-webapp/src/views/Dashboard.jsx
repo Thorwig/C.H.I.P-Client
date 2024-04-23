@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, TextField, Avatar, Menu, MenuItem, IconButton, Box, CssBaseline, Typography, Container } from '@mui/material';
+import {
+  Button, TextField, Avatar, Menu, MenuItem, IconButton,
+  Box, CssBaseline, Typography, Container, Snackbar, Alert
+} from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { signOut } from '../firebase/auth'; // Adjust the path as necessary
+import { getAuth } from 'firebase/auth'; // Import getAuth for Firebase authentication
 
 const theme = createTheme({
   palette: {
@@ -22,13 +25,25 @@ const theme = createTheme({
 });
 
 function Dashboard() {
+  const [textInput, setTextInput] = useState('');
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [severity, setSeverity] = useState('info');
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  const openMenu = Boolean(anchorEl);
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
 
   const handleSignOut = async () => {
+    const auth = getAuth();
     try {
-      await signOut();
+      await auth.signOut();
       navigate('/signin');
     } catch (error) {
       console.error('Sign out error:', error);
@@ -43,6 +58,37 @@ function Dashboard() {
     setAnchorEl(null);
   };
 
+  const handleSubmit = async () => {
+    console.log('Submitting text input:', textInput)
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      user.getIdToken().then(token => {
+        fetch(`http://172.20.0.5/assistant-service/assistant`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: textInput})
+        })
+        .then(response => response.json())
+        .then(data => {
+          setMessage('Request successful!');
+          setSeverity('success');
+          setOpen(true);
+          console.log(data); // Handle the response data as needed
+        })
+        .catch(error => {
+          setMessage('Request failed: ' + error.message);
+          setSeverity('error');
+          setOpen(true);
+          console.error('Error fetching data:', error);
+        });
+      });
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -55,13 +101,16 @@ function Dashboard() {
             fullWidth
             variant="outlined"
             margin="normal"
+            value={textInput}
+            onChange={e => setTextInput(e.target.value)}
           />
           <Button
-            type="submit"
+            type="button"
             fullWidth
             variant="contained"
             color="primary"
             sx={{ mt: 3, mb: 2 }}
+            onClick={handleSubmit}
           >
             Submit
           </Button>
@@ -70,7 +119,7 @@ function Dashboard() {
           </IconButton>
           <Menu
             anchorEl={anchorEl}
-            open={open}
+            open={openMenu}
             onClose={handleClose}
           >
             <MenuItem onClick={() => {
@@ -82,6 +131,11 @@ function Dashboard() {
           <Button onClick={handleSignOut} variant="contained" color="secondary" sx={{ mt: 2 }}>
             Sign Out
           </Button>
+          <Snackbar open={open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+            <Alert onClose={handleCloseSnackbar} severity={severity} sx={{ width: '100%' }}>
+              {message}
+            </Alert>
+          </Snackbar>
         </Box>
       </Container>
     </ThemeProvider>
