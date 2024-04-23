@@ -26,6 +26,7 @@ const theme = createTheme({
 
 function Dashboard() {
   const [textInput, setTextInput] = useState('');
+  const [responseData, setResponseData] = useState(''); // State to hold the fetched data
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('info');
@@ -64,20 +65,21 @@ function Dashboard() {
     const user = auth.currentUser;
     if (user) {
       user.getIdToken().then(token => {
-        fetch(`http://172.20.0.5/assistant-service/assistant`, {
-          method: 'GET',
+        fetch(`http://localhost/assistantService/assistant`, {
+          method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ message: textInput})
         })
-        .then(response => response.json())
+        .then(response => response.text())
         .then(data => {
+          setResponseData(data); // Store the fetched data
           setMessage('Request successful!');
           setSeverity('success');
           setOpen(true);
-          console.log(data); // Handle the response data as needed
+          console.log(data);
         })
         .catch(error => {
           setMessage('Request failed: ' + error.message);
@@ -114,6 +116,11 @@ function Dashboard() {
           >
             Submit
           </Button>
+          {responseData && (
+            <Typography variant="body1" sx={{ mt: 2, mb: 2 }}>
+              Response: {responseData}
+            </Typography>
+          )}
           <IconButton onClick={handleClick} style={{ position: 'absolute', top: 20, right: 20 }}>
             <Avatar src="/path_to_your_image.jpg"/> {/* Replace with your image path */}
           </IconButton>
