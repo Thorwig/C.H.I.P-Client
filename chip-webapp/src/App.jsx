@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import SignUp from './views/SignUp';
 import SignIn from './views/SignIn';
-import Dashboard from './views/Dashboard';
+import Home from './views/Home';
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
         <Route path="/" element={<Navigate replace to="/signin" />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </Router>
   );

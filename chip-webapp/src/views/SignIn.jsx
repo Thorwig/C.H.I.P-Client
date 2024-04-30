@@ -26,7 +26,7 @@ function SignIn() {
       setMessage('Sign in successful!');
       setSeverity('success');
       setOpen(true);
-      navigate('/dashboard'); 
+      navigate('/home'); 
     } catch (error) {
       setMessage(error.message);
       setSeverity('error');

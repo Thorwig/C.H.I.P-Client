@@ -33,6 +33,13 @@
   }
 }
 
+.logo div {
+  display: inline-block;
+  width: 12px; 
+  height: 12px;
+  margin: 2px;
+}
+
 .card {
   padding: 2em;
 }
